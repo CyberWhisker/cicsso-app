@@ -3,10 +3,12 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Text, useTheme } from 'react-native-paper';
-import HomeScreen from '../screens/HomeScreen/HomeScreen';
-import { Login, Signin } from '../screens/Auth';
-
 import BottomNavigator from './BottomNavigator';
+
+import { Login, Signin } from '../screens/Auth';
+import HomeScreen from '../screens/HomeScreen/HomeScreen';
+import AttendanceScreen from '../screens/AttendanceScreen/AttendanceScree';
+
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -19,7 +21,7 @@ export default function AppNavigator() {
       {isLogin && (
         <HomeNavigation/>
       )}
-      <BottomNavigator />
+      {/* <BottomNavigator /> */}
     </NavigationContainer>
   );
 }
@@ -63,12 +65,23 @@ function HomeNavigation() {
       }}
     >
       <Stack.Screen 
-      name="Home" 
+      name="Dashboard" 
       component={HomeScreen}
       options={{
         headerTitle: (props) => (
           <Text style={{ color: colors.primary, fontSize: 20, fontWeight: 'bold' }}>
-            Custom Title
+            Dashboard
+          </Text>
+        ),
+      }}
+      />
+      <Stack.Screen 
+      name="Attendance" 
+      component={AttendanceScreen}
+      options={{
+        headerTitle: (props) => (
+          <Text style={{ color: colors.primary, fontSize: 20, fontWeight: 'bold' }}>
+            Attendance
           </Text>
         ),
       }}

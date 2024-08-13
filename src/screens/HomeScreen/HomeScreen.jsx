@@ -1,18 +1,17 @@
 import React from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Card, Text } from 'react-native-paper'
-import Biometrics from '../Hooks/Biometrics'
+import { Card, Text, useTheme } from 'react-native-paper'
+import { CustomCalendar } from '../../components'
 
 function HomeScreen() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.customText}>Event Name</Text>
         <View style={{marginTop: 10}}>
           <InfoStack/>
         </View>
-        <View style={{marginTop: 60}}>
-          <AttendanceSign/>
+        <View style={{marginTop: 20}}>
+          <CalendarView/>
         </View>
       </View>
     </ScrollView>
@@ -20,35 +19,46 @@ function HomeScreen() {
 }
 
 function InfoStack() {
+  const {colors} = useTheme();
+  let attendanceStatus = true;
+  const backgroundColor = attendanceStatus ? '#28a745' : colors.secondary;
   return (
     <View style={{gap: 15}}>
       <View style={styles.cardContainer}>
-        <Card style={styles.card}>
-          <Text>AM IN</Text>
-          <Text style={styles.customText}>07:30</Text>
+        <Card style={[styles.card,{backgroundColor: backgroundColor}]}>
+          <Card.Title title='Attendance'/>
+          <Card.Content>
+            <Text style={styles.customText}>Open</Text>
+          </Card.Content>
         </Card>
         <Card style={styles.card}>
-          <Text>AM OUT</Text>
-          <Text style={styles.customText}>11:30</Text>
+          <Card.Title title='Events'/>
+          <Card.Content>
+            <Text Text style={styles.customText}>30</Text>
+          </Card.Content>
         </Card>
       </View>
       <View style={styles.cardContainer}>
         <Card style={styles.card}>
-          <Text>PM IN</Text>
-          <Text style={styles.customText}>12:32</Text>
+          <Card.Title title='Penalties'/>
+          <Card.Content>
+            <Text style={styles.customText}>3</Text>
+          </Card.Content>
         </Card>
         <Card style={styles.card}>
-          <Text>PM OUT</Text>
-          <Text style={styles.customText}>N/A</Text>
+          <Card.Title title='Credits'/>
+          <Card.Content>
+            <Text style={styles.customText} adjustsFontSizeToFit>10000</Text>
+          </Card.Content>
         </Card>
       </View>
     </View>
   )
 }
 
-function AttendanceSign() {
+function CalendarView() {
   return (
-    <Biometrics/>
+    <CustomCalendar/>
   )
 }
 
@@ -57,7 +67,6 @@ const styles = StyleSheet.create({
     padding: 20
   },
   card: {
-    padding: 20,
     width: '48%'
   },
   cardContainer: {
@@ -65,9 +74,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   customText: {
-    fontSize: 50,
+    fontSize: '30%',
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
   }
 })
 
