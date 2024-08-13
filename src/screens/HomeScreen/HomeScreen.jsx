@@ -1,24 +1,73 @@
 import React from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Avatar, Button, Text } from 'react-native-paper'
+import { Card, Text } from 'react-native-paper'
+import Biometrics from '../Hooks/Biometrics'
 
 function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <Text variant='displayMedium' style={{fontWeight: 'bold'}}>Set up Biometrics</Text>
-      <Button onPress={() => alert('Success')}>
-        <Avatar.Icon icon={'fingerprint'} size={200}/>
-      </Button>
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.customText}>Event Name</Text>
+        <View style={{marginTop: 10}}>
+          <InfoStack/>
+        </View>
+        <View style={{marginTop: 60}}>
+          <AttendanceSign/>
+        </View>
+      </View>
+    </ScrollView>
+  )
+}
+
+function InfoStack() {
+  return (
+    <View style={{gap: 15}}>
+      <View style={styles.cardContainer}>
+        <Card style={styles.card}>
+          <Text>AM IN</Text>
+          <Text style={styles.customText}>07:30</Text>
+        </Card>
+        <Card style={styles.card}>
+          <Text>AM OUT</Text>
+          <Text style={styles.customText}>11:30</Text>
+        </Card>
+      </View>
+      <View style={styles.cardContainer}>
+        <Card style={styles.card}>
+          <Text>PM IN</Text>
+          <Text style={styles.customText}>12:32</Text>
+        </Card>
+        <Card style={styles.card}>
+          <Text>PM OUT</Text>
+          <Text style={styles.customText}>N/A</Text>
+        </Card>
+      </View>
     </View>
+  )
+}
+
+function AttendanceSign() {
+  return (
+    <Biometrics/>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 50
+    padding: 20
+  },
+  card: {
+    padding: 20,
+    width: '48%'
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  customText: {
+    fontSize: 50,
+    fontWeight: 'bold',
+    textAlign: 'center'
   }
 })
 
