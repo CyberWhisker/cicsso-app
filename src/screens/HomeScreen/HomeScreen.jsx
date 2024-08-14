@@ -2,10 +2,11 @@ import React from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Card, Text, useTheme } from 'react-native-paper'
 import { CustomCalendar } from '../../components'
+import Master from '../../layouts/Master'
 
 function HomeScreen() {
   return (
-    <ScrollView>
+    <Master>
       <View style={styles.container}>
         <View style={{marginTop: 10}}>
           <InfoStack/>
@@ -14,7 +15,7 @@ function HomeScreen() {
           <CalendarView/>
         </View>
       </View>
-    </ScrollView>
+    </Master>
   )
 }
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import { Button, Card, TextInput, Title, Subheading, Menu, Divider, Text } from 'react-native-paper';
+import { Button, Card, TextInput, Title, Subheading, Menu, Divider, Text, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
 function SignIn() {
+  const {colors} = useTheme();
   const [dataForm, setDataForm] = useState({
     first_name: '',
     last_name: '',
@@ -33,7 +34,7 @@ function SignIn() {
         <Card style={styles.card}>
           <Card.Content style={styles.content}>
             <Title style={styles.title}>Sign In</Title>
-            <Subheading style={styles.subheading}>Please enter your details</Subheading>
+            <Subheading style={[styles.subheading, {color: colors.primary}]}>Please enter your details</Subheading>
             <TextInput
               label="Email"
               value={dataForm.email}
@@ -134,14 +135,14 @@ function SignIn() {
               secureTextEntry
             />
           </Card.Content>
-          <Card.Actions style={styles.actions}>
+          <Card.Content style={styles.actions}>
+            <Text mode="outlined" onPress={() => navigation.navigate('LogIn')} style={{color: colors.primary}}>
+              I have an account
+            </Text>
             <Button mode="contained" onPress={() => { /* Handle registration */ }}>
               Register
             </Button>
-            <Button mode="contained" onPress={() => navigation.navigate('LogIn')}>
-              Login
-            </Button>
-          </Card.Actions>
+          </Card.Content>
         </Card>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -181,9 +182,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   actions: {
-    justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 8,
     flexDirection: 'row', // Align buttons horizontally
-    gap: 8, // Space between buttons
   },
 });

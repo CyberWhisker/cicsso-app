@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { Card, Text } from 'react-native-paper'
 import Biometrics from '../../Hooks/Biometrics'
 import { useRoute } from '@react-navigation/native';
+import Master from '../../layouts/Master';
 
 const getMonthName = (date) => {
   const options = { month: 'long',day: 'numeric', year: 'numeric' };
@@ -13,7 +14,7 @@ function AttendanceScreen() {
   const route = useRoute();
   const {selectedDate} = route.params || {}
   return (
-    <ScrollView>
+    <Master>
       <View style={styles.container}>
         <Text variant='displayMedium' style={{textAlign: 'center', fontWeight: 'bold'}}>Event Name</Text>
         <Text variant='headlineMedium' style={{fontWeight: 'bold', textAlign: 'center'}}>{getMonthName(selectedDate)}</Text>
@@ -24,7 +25,7 @@ function AttendanceScreen() {
           <AttendanceSign/>
         </View>
       </View>
-    </ScrollView>
+    </Master>
   )
 }
 
