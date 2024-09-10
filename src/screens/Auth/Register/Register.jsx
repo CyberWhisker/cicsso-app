@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import { Button, Card, TextInput, Title, Subheading, Menu, Divider, Text, useTheme } from 'react-native-paper';
+import { Button, Card, TextInput, Title, Subheading, Menu, Text, useTheme, Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { storeUser } from '../../../api/userApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function SignIn() {
-  const {colors} = useTheme();
+function Register() {
+  const { colors } = useTheme();
   const [dataForm, setDataForm] = useState({
-    first_name: '',
-    last_name: '',
-    middle_name: '',
+    name: '',
     email: '',
     year: '',
     section: '',
@@ -18,14 +18,45 @@ function SignIn() {
 
   const [yearMenuVisible, setYearMenuVisible] = useState(false);
   const [sectionMenuVisible, setSectionMenuVisible] = useState(false);
-
+  const [errors, setErrors] = useState({});
+  
   const navigation = useNavigation();
 
   const handleChange = (field, value) => {
     setDataForm(prevState => ({ ...prevState, [field]: value }));
   };
 
-  const years = ['2021', '2022', '2023', '2024'];
+  const validateForm = () => {
+    const { name, email, year, section, password, confirm_password } = dataForm;
+    const newErrors = {};
+    
+    if (!name) newErrors.name = 'Name is required';
+    if (!email) newErrors.email = 'Email is required';
+    if (!year) newErrors.year = 'Year is required';
+    if (!section) newErrors.section = 'Section is required';
+    if (!password) newErrors.password = 'Password is required';
+    if (password !== confirm_password) newErrors.confirm_password = 'Passwords do not match';
+
+    return newErrors;
+  };
+
+  const handleSubmit = async () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length === 0) {
+      console.log(dataForm);
+      const { data, error } = await storeUser(dataForm)
+      if (error) {
+        alert(error)
+      } else {
+        await AsyncStorage.setItem('user', JSON.stringify(data))
+        alert('Successfully Registered')
+      }
+    } else {
+      setErrors(validationErrors);
+    }
+  };
+
+  const years = ['1st Year', '2nd Year', '3r Year', '4th Year'];
   const sections = ['A', 'B', 'C', 'D'];
 
   return (
@@ -33,8 +64,21 @@ function SignIn() {
       <KeyboardAvoidingView behavior='padding' style={styles.container}>
         <Card style={styles.card}>
           <Card.Content style={styles.content}>
-            <Title style={styles.title}>Sign In</Title>
-            <Subheading style={[styles.subheading, {color: colors.primary}]}>Please enter your details</Subheading>
+            
+            <View style={{alignItems: 'center'}}>
+                <Avatar.Image source={require('../../../../assets/images/appImg/Logo.png')} size={100} style={styles.avatar} />
+                <Title style={styles.title}>Sign In</Title>
+                <Subheading style={[styles.subheading, { color: colors.primary, textAlign: 'center' }]}>Please enter your details</Subheading>
+            </View>
+            <TextInput
+              label="Full Name"
+              value={dataForm.name}
+              onChangeText={(text) => handleChange('name', text)}
+              style={styles.textInput}
+              mode="outlined"
+              error={!!errors.name}
+            />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
             <TextInput
               label="Email"
               value={dataForm.email}
@@ -42,30 +86,11 @@ function SignIn() {
               style={styles.textInput}
               mode="outlined"
               keyboardType="email-address"
+              error={!!errors.email}
             />
-            <TextInput
-              label="First Name"
-              value={dataForm.first_name}
-              onChangeText={(text) => handleChange('first_name', text)}
-              style={styles.textInput}
-              mode="outlined"
-            />
-            <TextInput
-              label="Middle Name"
-              value={dataForm.middle_name}
-              onChangeText={(text) => handleChange('middle_name', text)}
-              style={styles.textInput}
-              mode="outlined"
-            />
-            <TextInput
-              label="Last Name"
-              value={dataForm.last_name}
-              onChangeText={(text) => handleChange('last_name', text)}
-              style={styles.textInput}
-              mode="outlined"
-            />
-            <View style={{width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12,}}>
-              <View style={{width: '45%'}}>
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
+              <View style={{ width: '45%' }}>
                 <Menu
                   visible={yearMenuVisible}
                   onDismiss={() => setYearMenuVisible(false)}
@@ -76,6 +101,7 @@ function SignIn() {
                       onTouchEnd={() => setYearMenuVisible(true)}
                       mode="outlined"
                       editable={false}
+                      error={!!errors.year}
                     />
                   }
                 >
@@ -91,7 +117,7 @@ function SignIn() {
                   ))}
                 </Menu>
               </View>
-              <View style={{width: '45%'}}>
+              <View style={{ width: '45%' }}>
                 <Menu
                   visible={sectionMenuVisible}
                   onDismiss={() => setSectionMenuVisible(false)}
@@ -102,6 +128,7 @@ function SignIn() {
                       onTouchEnd={() => setSectionMenuVisible(true)}
                       mode="outlined"
                       editable={false}
+                      error={!!errors.section}
                     />
                   }
                 >
@@ -125,7 +152,9 @@ function SignIn() {
               style={styles.textInput}
               mode="outlined"
               secureTextEntry
+              error={!!errors.password}
             />
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
             <TextInput
               label="Confirm Password"
               value={dataForm.confirm_password}
@@ -133,13 +162,15 @@ function SignIn() {
               style={styles.textInput}
               mode="outlined"
               secureTextEntry
+              error={!!errors.confirm_password}
             />
+            {errors.confirm_password && <Text style={styles.errorText}>{errors.confirm_password}</Text>}
           </Card.Content>
           <Card.Content style={styles.actions}>
-            <Text mode="outlined" onPress={() => navigation.navigate('LogIn')} style={{color: colors.primary}}>
+            <Text mode="outlined" onPress={() => navigation.navigate('Login')} style={{ color: colors.primary }}>
               I have an account
             </Text>
-            <Button mode="contained" onPress={() => { /* Handle registration */ }}>
+            <Button mode="contained" onPress={handleSubmit}>
               Register
             </Button>
           </Card.Content>
@@ -149,7 +180,7 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default Register;
 
 const styles = StyleSheet.create({
   container: {
@@ -164,13 +195,13 @@ const styles = StyleSheet.create({
     elevation: 4, // Adds shadow for better appearance
   },
   content: {
-    alignItems: 'center',
     paddingHorizontal: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center'
   },
   subheading: {
     fontSize: 16,
@@ -187,4 +218,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: 'row', // Align buttons horizontally
   },
+  errorText: {
+    color: 'red',
+    marginBottom: 12,
+  }
 });

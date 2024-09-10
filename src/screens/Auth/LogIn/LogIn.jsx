@@ -1,32 +1,32 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Avatar, Button, Card, TextInput, Title, Subheading, useTheme } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../../../context/AuthContext';
+import { userLogin } from '../../../api/userApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { colors } = useTheme();
     const navigation = useNavigation();
-
-    const storeData = async (value) => {
-        try {
-            await AsyncStorage.setItem('userStatus', value);
-        } catch (e) {
-            console.error('Failed to save user status', e);
+    const handleSubmit = async () => {
+        const {data, error } = await userLogin(email, password)
+        console.log(data, error)
+        if (error) {
+            alert(error)
+        } else {
+            await AsyncStorage.setItem('user', JSON.stringify(data))
+            navigation.navigate('Home')
         }
-    };
-
-    const {login} = useContext(AuthContext);
+    }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView behavior='padding' style={styles.container}>
                 <Card style={styles.card}>
                     <Card.Content style={styles.content}>
                         <Avatar.Image source={require('../../../../assets/images/appImg/Logo.png')} size={100} style={styles.avatar} />
-                        <Title style={styles.title}>Log In</Title>
+                        <Title style={styles.title}>Sign In</Title>
                         <Subheading style={[styles.subheading, { color: colors.primary }]}>Please enter your details</Subheading>
                         <TextInput
                             label="Email"
@@ -43,13 +43,14 @@ function LogIn() {
                             style={styles.textInput}
                             mode="outlined"
                             secureTextEntry
+                            
                         />
                     </Card.Content>
                     <Card.Actions style={styles.actions}>
-                        <Button mode="outlined" onPress={() => navigation.navigate('SignIn')}>
+                        <Button mode="outlined" onPress={() => navigation.navigate('Register')}>
                             Register
                         </Button>
-                        <Button mode="contained" onPress={login}>
+                        <Button mode="contained" onPress={handleSubmit}>
                             Login
                         </Button>
                     </Card.Actions>

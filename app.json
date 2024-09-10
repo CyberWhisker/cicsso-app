@@ -3,13 +3,13 @@
     "name": "cicsso-app",
     "slug": "cicsso-app",
     "version": "1.0.0",
-    "plugins": [
-      [
-        "expo-local-authentication",
-        {
-          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
-        }
-      ]
-    ]
+    "ios": {
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "We need to use Face ID for secure authentication."
+      }
+    },
+    "extra": {
+      "backendApi": "http://172.16.129.27:4000"
+    }
   }
 }

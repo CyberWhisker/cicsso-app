@@ -1,10 +1,15 @@
-import React from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import React, { useContext, useEffect } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { Card, Text, useTheme } from 'react-native-paper'
 import { CustomCalendar } from '../../components'
 import Master from '../../layouts/Master'
+import { AuthContext } from '../../context/AuthContext'
 
 function HomeScreen() {
+  const {user} = useContext(AuthContext)
+  useEffect(() => {
+    console.log(user)
+  },[])
   return (
     <Master>
       <View style={styles.container}>
