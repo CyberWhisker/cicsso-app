@@ -11,10 +11,14 @@ function AuthStack() {
     return (
         <Stack.Navigator
             screenOptions={{
-                headerStyle: { backgroundColor: colors.primary },
-                headerTintColor: colors.onPrimary,
-                contentStyle: { backgroundColor: colors.background },
-            }}
+                headerStyle: {
+                    backgroundColor: '#665a6f'
+                },
+                headerTintColor: 'white', 
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}    
         >
             <Stack.Screen 
                 name="LogIn" 

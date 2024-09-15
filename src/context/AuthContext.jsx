@@ -18,8 +18,7 @@ export const AuthProvider= ({children}) => {
             try {
                 await AsyncStorage.setItem('user', JSON.stringify(data));
                 
-                const storedData = await AsyncStorage.getItem('user');
-                console.log('Stored data:', JSON.parse(storedData));
+                await AsyncStorage.setItem('user');
             } catch (storageError) {
                 console.error('Error with AsyncStorage:', storageError);
             }

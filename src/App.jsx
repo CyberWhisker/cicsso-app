@@ -1,11 +1,9 @@
 import 'react-native-gesture-handler';
 import { MD3LightTheme, MD3DarkTheme, PaperProvider } from 'react-native-paper';
-import { useColorScheme, View } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { AuthProvider } from './context/AuthContext';
-import { createStackNavigator } from '@react-navigation/stack';
-import { Login, Register } from './screens/Auth';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import { AttendanceScreen, HomeScreen } from './screens';
+import AppNav from './navigation/AppNav';
 
 const MyTheme = {
     ...DefaultTheme,
@@ -17,28 +15,12 @@ const MyTheme = {
 
 export default function App() {
     const colorScheme = useColorScheme();
-    const paperTheme = colorScheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
-    const Stack = createStackNavigator()
+    const paperTheme = colorScheme === 'light' ? MD3DarkTheme : MD3LightTheme;
     return (
-        <PaperProvider theme={paperTheme}>
+        <PaperProvider theme={MD3DarkTheme}>
             <NavigationContainer theme={MyTheme}>
                 <AuthProvider>
-                    <Stack.Navigator
-                        screenOptions={{
-                            headerStyle: {
-                                backgroundColor: '#665a6f'
-                            },
-                            headerTintColor: 'white', 
-                            headerTitleStyle: {
-                                fontWeight: 'bold',
-                            },
-                        }}    
-                    >
-                        <Stack.Screen name="Login" component={Login} />
-                        <Stack.Screen name="Register" component={Register} />
-                        <Stack.Screen name="Home" component={HomeScreen} />
-                        <Stack.Screen name="Attendance" component={AttendanceScreen} />
-                    </Stack.Navigator>
+                    <AppNav/>
                 </AuthProvider>
             </NavigationContainer>
         </PaperProvider>

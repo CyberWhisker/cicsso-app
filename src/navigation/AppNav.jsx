@@ -1,25 +1,32 @@
+import { createStackNavigator } from '@react-navigation/stack'
 import React, { useContext } from 'react'
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthContext } from '../context/AuthContext';
-import { ActivityIndicator, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import AuthStack from './AuthStack';
-import AppStack from './AppStack';
-
-const Stack = createNativeStackNavigator();
+import { View } from 'react-native'
+import { AuthContext } from '../context/AuthContext'
+import { Login, Register } from '../screens/Auth'
+import { AttendanceScreen, HomeScreen } from '../screens'
 
 function AppNav() {
-    const {isLoading, userToken} = useContext(AuthContext)
-    if ( isLoading ) {
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size='large'/>
-        </View>
-    }
-    return (
-        <NavigationContainer>
-            {userToken !== null ? <AppStack/> : <AuthStack/> }
-        </NavigationContainer>
-    )
+    const Stack = createStackNavigator()
+    const {user} = useContext(AuthContext)
+  return (
+    <Stack.Navigator
+        initialRouteName={user ? 'Attendance' : 'Login'}
+        screenOptions={{
+            headerStyle: {
+                backgroundColor: '#665a6f'
+            },
+            headerTintColor: 'white', 
+            headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        }}    
+    >
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Attendance" component={AttendanceScreen} />
+    </Stack.Navigator>
+  )
 }
 
 export default AppNav
