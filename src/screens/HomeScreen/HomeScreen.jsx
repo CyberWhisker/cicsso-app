@@ -18,19 +18,27 @@ function HomeScreen() {
   const [activeSched, setActiveSched] = useState([])
 
   const handleGetSched = async () => {
-    const {data, error} = await fetchSchedules();
-    if (error) {
-      alert(error)
+    const {data:schedData, error:schedError} = await fetchSchedules();
+    if (schedError) {
+      alert(schedError)
     } else {
-      setSchedData(data)
+      setSchedData(schedData)
       const dateNow = moment().startOf('day').toISOString();
-      const activeShed = data.find(sched => sched.date == dateNow)
+      const activeShed = schedData.find(sched => sched.date == dateNow)
       setActiveSched(activeShed);
       if (activeShed) {
         const {data: eventData, error: eventError} = await fetchEventById(activeShed.eventId)
+        if (eventError) {
+          alert(eventError)
+        } else {
+          setEventData(eventData)
+        }
         const {data: attendData, error: attendError} = await fetchAttendanceByUserIdSchedId(user.user._id, activeShed._id)
-        setEventData(eventData)
-        setAttendData(attendData)
+        if (attendError) {
+          alert(attendError)
+        } else {
+          setAttendData(attendData)
+        }
       }
     }
   }

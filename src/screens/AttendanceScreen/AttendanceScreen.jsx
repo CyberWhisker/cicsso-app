@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { StyleSheet, View, Alert } from 'react-native'
-import { Card, Text, Avatar, Button } from 'react-native-paper'
+import { Card, Text, Avatar, Button, Icon } from 'react-native-paper'
 import Biometrics from '../../Hooks/Biometrics'
 import { useRoute } from '@react-navigation/native';
 import Master from '../../layouts/Master';
@@ -18,11 +18,7 @@ function AttendanceScreen() {
   const [schedData, setSchedData] = useState([]);
   const [eventData, setEventData] = useState([]);
   const [attendData, setAttendData] = useState([]);
-  const [formData, setFormData] = useState({
-    scheduleId: '',
-    userId: user.user._id,
-    name: user.user.name,
-  });
+  const [isLoading, setIsLoading] = useState(true);
   const handleGetSchedule = async () => {
     try {
       // Fetch schedule data
@@ -47,10 +43,6 @@ function AttendanceScreen() {
         alert(attendError);
       } else {
         setAttendData(attendData);
-        setFormData({
-          ...formData,
-          _id: attendData._id,
-        });
       }
   
       if (eventError) {
@@ -61,11 +53,7 @@ function AttendanceScreen() {
   
       // Set schedule data
       setSchedData(schedData);
-      setFormData({
-        ...formData,
-        scheduleId: schedData._id
-      });
-  
+      setIsLoading(false)
     } catch (error) {
       console.error("An error occurred:", error);
       alert("Something went wrong while fetching data.");
@@ -84,7 +72,9 @@ function AttendanceScreen() {
           <InfoStack attendData={attendData}/>
         </View>
         <View style={{marginTop: 50}}>
-          <AttendanceSign schedData={schedData} attendData={attendData} formData={formData} setFormData={setFormData}/>
+          {!isLoading && 
+            <AttendanceSign schedData={schedData} attendData={attendData} user={user} handleGetSchedule={handleGetSchedule}/>
+          }
         </View>
       </View>
     </Master>
@@ -118,8 +108,14 @@ function InfoStack({attendData}) {
   )
 }
 
-function AttendanceSign({schedData, attendData, setFormData, formData}) {
+function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [formData, setFormData] = useState({
+    ...(attendData._id && { _id: attendData._id }), 
+    scheduleId: schedData._id,
+    userId: user.user._id,
+    name: user.user.name,
+  });
   const [isSchedAtive, setIsSchedActive] = useState(false);
     // for face detection or fingerprint scan
     useEffect(() => {
@@ -183,6 +179,7 @@ function AttendanceSign({schedData, attendData, setFormData, formData}) {
         });
         if (biometricAuth.success) {
             TwoButtonAlert()
+            handleSubmit()
         };
         console.log({isBiometricAvailable})
         console.log({supportedBiometrics})
@@ -191,22 +188,23 @@ function AttendanceSign({schedData, attendData, setFormData, formData}) {
     }
 
     const handleSubmit = async () => {
-      console.log(formData)
-      // if (attendData._id) {
-      //   const {data, error} = await updateAttendance(formData)
-      //   if (error) {
-      //     alert(error)
-      //   } else {
-      //     alert('Attendance Successfull')
-      //   }
-      // } else {
-      //   const {data, error} = await storeAttendance(formData)
-      //   if (error) {
-      //     alert(error)
-      //   } else {
-      //     alert('Attendance Successfull')
-      //   }
-      // }
+      if (attendData._id) {
+        const {data, error} = await updateAttendance(formData)
+        if (error) {
+          alert(error)
+        } else {
+          alert('Attendance Successfull')
+          handleGetSchedule()
+        }
+      } else {
+        const {data, error} = await storeAttendance(formData)
+        if (error) {
+          alert(error)
+        } else {
+          alert('Attendance Successfull')
+          handleGetSchedule()
+        }
+      }
     }
 
     const handleTimeChecker = () => {
@@ -253,8 +251,8 @@ function AttendanceSign({schedData, attendData, setFormData, formData}) {
     return (
         <View>
           {isSchedAtive &&
-            <Button onPress={handleBiometricAuth}>
-                <Avatar.Icon icon={'fingerprint'} size={200}/>
+            <Button icon="fingerprint" mode="contained" onPress={handleBiometricAuth}>
+              Attendance
             </Button>
           }
           {!isSchedAtive &&
@@ -290,7 +288,6 @@ function AttendanceSign({schedData, attendData, setFormData, formData}) {
               </View>
             </View>
           }
-          <Button onPress={() => handleSubmit()}>test</Button>
         </View>
     )
 }

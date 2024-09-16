@@ -10,7 +10,7 @@ function AppNav() {
     const {user} = useContext(AuthContext)
   return (
     <Stack.Navigator
-        initialRouteName={user ? 'Attendance' : 'Login'}
+        initialRouteName={user ? 'Home' : 'Login'}
         screenOptions={{
             headerStyle: {
                 backgroundColor: '#665a6f'
