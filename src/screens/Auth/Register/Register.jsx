@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Button, Card, TextInput, Title, Subheading, Menu, Text, useTheme, Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { storeUser } from '../../../api/userApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../../context/AuthContext';
 
 function Register() {
+  const {register} = useContext(AuthContext)
   const { colors } = useTheme();
   const [dataForm, setDataForm] = useState({
     name: '',
@@ -43,14 +45,7 @@ function Register() {
   const handleSubmit = async () => {
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
-      console.log(dataForm);
-      const { data, error } = await storeUser(dataForm)
-      if (error) {
-        alert(error)
-      } else {
-        await AsyncStorage.setItem('user', JSON.stringify(data))
-        alert('Successfully Registered')
-      }
+      register(dataForm)
     } else {
       setErrors(validationErrors);
     }

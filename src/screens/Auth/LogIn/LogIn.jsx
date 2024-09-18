@@ -4,22 +4,14 @@ import { Avatar, Button, Card, TextInput, Title, Subheading, useTheme } from 're
 import { useNavigation } from '@react-navigation/native';
 import { userLogin } from '../../../api/userApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../../context/AuthContext';
 
 function LogIn() {
+    const {login} = useContext(AuthContext)
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { colors } = useTheme();
     const navigation = useNavigation();
-    const handleSubmit = async () => {
-        const {data, error } = await userLogin(email, password)
-        console.log(data, error)
-        if (error) {
-            alert(error)
-        } else {
-            await AsyncStorage.setItem('user', JSON.stringify(data))
-            navigation.navigate('Home')
-        }
-    }
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView behavior='padding' style={styles.container}>
@@ -50,7 +42,7 @@ function LogIn() {
                         <Button mode="outlined" onPress={() => navigation.navigate('Register')}>
                             Register
                         </Button>
-                        <Button mode="contained" onPress={handleSubmit}>
+                        <Button mode="contained" onPress={() =>  login(email, password)}>
                             Login
                         </Button>
                     </Card.Actions>

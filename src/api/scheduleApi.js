@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 export const fetchScheduleByDate = async (date) => {
     const BACKEND_API = Constants.expoConfig?.extra?.backendApi;
     try {
-        const response = await fetch(`${BACKEND_API}/api/schedule/date/${date}`, {
+        const response = await fetch(`${BACKEND_API}/api/schedule/getScheduleByDate/${date}`, {
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -4,29 +4,13 @@ import { View } from 'react-native'
 import { AuthContext } from '../context/AuthContext'
 import { Login, Register } from '../screens/Auth'
 import { AttendanceScreen, HomeScreen } from '../screens'
+import AuthStack from './AuthStack'
+import AppStack from './AppStack'
 
 function AppNav() {
     const Stack = createStackNavigator()
     const {user} = useContext(AuthContext)
-  return (
-    <Stack.Navigator
-        initialRouteName={user ? 'Home' : 'Login'}
-        screenOptions={{
-            headerStyle: {
-                backgroundColor: '#665a6f'
-            },
-            headerTintColor: 'white', 
-            headerTitleStyle: {
-                fontWeight: 'bold',
-            },
-        }}    
-    >
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Attendance" component={AttendanceScreen} />
-    </Stack.Navigator>
-  )
+  return user ? <AppStack/> : <AuthStack/>
 }
 
 export default AppNav

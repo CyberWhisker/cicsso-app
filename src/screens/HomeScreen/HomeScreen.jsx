@@ -1,50 +1,46 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Card, Text, useTheme } from 'react-native-paper'
+import { Button, Card, Text, useTheme } from 'react-native-paper'
 import Master from '../../layouts/Master'
 import { AuthContext } from '../../context/AuthContext'
 import moment from 'moment'
-import { fetchSchedules } from '../../api/scheduleApi'
-import { fetchEventById } from '../../api/eventApi'
+import { fetchScheduleByDate, fetchSchedules } from '../../api/scheduleApi'
 import { Calendar } from 'react-native-calendars'
 import { useNavigation } from '@react-navigation/native'
-import { fetchAttendanceByUserIdSchedId } from '../../api/attendanceApi'
 
 function HomeScreen() {
-  const {user} = useContext(AuthContext)
+  const {user, logout} = useContext(AuthContext)
   const [eventData, setEventData] = useState([])
   const [schedData, setSchedData] = useState([])
   const [attendData, setAttendData] = useState([])
   const [activeSched, setActiveSched] = useState([])
 
-  const handleGetSched = async () => {
-    const {data:schedData, error:schedError} = await fetchSchedules();
-    if (schedError) {
-      alert(schedError)
+  const handleGetEventByDate = async () => {
+    const dateNow = moment().startOf('day').toISOString();
+    const {data, error} = await fetchScheduleByDate(dateNow)
+    if (error) {
+      alert(error.message)
     } else {
-      setSchedData(schedData)
+      setEventData(data.event)
+    }
+  }
+
+  const handleGetSchedules = async () => {
+    const {data, error} = await fetchSchedules()
+    if (error) {
+      alert(error.message)
+    } else {
+      setSchedData(data)
+      //For Getting Active Schedule
       const dateNow = moment().startOf('day').toISOString();
-      const activeShed = schedData.find(sched => sched.date == dateNow)
+      const activeShed = data.find(sched => sched.date == dateNow)
       setActiveSched(activeShed);
-      if (activeShed) {
-        const {data: eventData, error: eventError} = await fetchEventById(activeShed.eventId)
-        if (eventError) {
-          alert(eventError)
-        } else {
-          setEventData(eventData)
-        }
-        const {data: attendData, error: attendError} = await fetchAttendanceByUserIdSchedId(user.user._id, activeShed._id)
-        if (attendError) {
-          alert(attendError)
-        } else {
-          setAttendData(attendData)
-        }
-      }
     }
   }
 
   useEffect(() => {
-    handleGetSched();
+    handleGetEventByDate()
+    handleGetSchedules();
   },[])
   return (
     <Master>
@@ -58,13 +54,16 @@ function HomeScreen() {
         <View style={{marginTop: 20}}>
           <ScheduleView activeSched={activeSched}/>
         </View>
+
+        <View style={{marginTop: 20}}>
+          <Button mode="contained" icon="logout" onPress={() => logout()}>Logout</Button>
+        </View>
       </View>
     </Master>
   )
 }
 
 function InfoStack({eventData, attendData}) {
-
   const [currentTime, setCurrentTime] = useState('')
 
   const handleCurrentTime = () => {
@@ -95,11 +94,11 @@ function InfoStack({eventData, attendData}) {
         </Card>
       </View>
       <View style={styles.cardContainer}>
-      <Card style={{ width: '100%', backgroundColor: eventData[0]?.event ? '#28a745' : '#ff4d4d' }}>
+      <Card style={{ width: '100%', backgroundColor: eventData.event ? '#28a745' : '#ff4d4d' }}>
         <Card.Title title='Current Event'/>
         <Card.Content>
           <Text style={styles.customText} adjustsFontSizeToFit>
-            {eventData[0]?.event || 'No Event Today'}
+            {eventData.event || 'No Event Today'}
           </Text>
         </Card.Content>
       </Card>
@@ -114,7 +113,8 @@ function CalendarView({schedData}) {
   const navigation = useNavigation();
 
   const handleAttendance = (date) => {
-    navigation.navigate("Attendance", {selectedDate: date})
+    let selectedData = moment(date).startOf('day').toISOString()
+    navigation.navigate("Attendance", {selectedDate: selectedData})
   }
 
   // Example highlight dates
@@ -158,13 +158,13 @@ function ScheduleView ({activeSched}) {
         <Card style={styles.card}>
           <Card.Title title='AM IN'/>
           <Card.Content>
-            <Text style={styles.customText}>{activeSched.amIn ? moment(activeSched.amIn).format('hh:mm A') : 'No Schedule'}</Text>
+            <Text style={styles.customText}>{activeSched?.amIn ? moment(activeSched.amIn).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
         <Card style={styles.card}>
           <Card.Title title='AM OUT'/>
           <Card.Content>
-          <Text style={styles.customText}>{activeSched.amOut ? moment(activeSched.amOut).format('hh:mm A') : 'No Schedule'}</Text>
+          <Text style={styles.customText}>{activeSched?.amOut ? moment(activeSched.amOut).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
       </View>
@@ -172,13 +172,13 @@ function ScheduleView ({activeSched}) {
         <Card style={styles.card}>
           <Card.Title title='PM IN'/>
           <Card.Content>
-          <Text style={styles.customText}>{activeSched.pmIn ? moment(activeSched.pmIn).format('hh:mm A') : 'No Schedule'}</Text>
+          <Text style={styles.customText}>{activeSched?.pmIn ? moment(activeSched.pmIn).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
         <Card style={styles.card}>
           <Card.Title title='PM OUT'/>
           <Card.Content>
-          <Text style={styles.customText}>{activeSched.pmOut ? moment(activeSched.pmOut).format('hh:mm A') : 'No Schedule'}</Text>
+          <Text style={styles.customText}>{activeSched?.pmOut ? moment(activeSched.pmOut).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
       </View>

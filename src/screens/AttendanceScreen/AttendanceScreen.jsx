@@ -19,49 +19,34 @@ function AttendanceScreen() {
   const [eventData, setEventData] = useState([]);
   const [attendData, setAttendData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const handleGetSchedule = async () => {
-    try {
-      // Fetch schedule data
-      const { data: schedData, error: schedError } = await fetchScheduleByDate(moment(selectedDate).startOf('day').toISOString());
-      
-      if (schedError) {
-        alert(schedError);
-        return;
-      }
-  
-      // Fetch attendance and event data concurrently
-      const [attendResponse, eventResponse] = await Promise.all([
-        fetchAttendanceByUserIdSchedId(user.user._id, schedData._id),
-        fetchEventById(schedData.eventId)
-      ]);
-  
-      const { data: attendData, error: attendError } = attendResponse;
-      const { data: eventData, error: eventError } = eventResponse;
-  
-      // Handle errors if any
-      if (attendError) {
-        alert(attendError);
-      } else {
-        setAttendData(attendData);
-      }
-  
-      if (eventError) {
-        alert(eventError);
-      } else {
-        setEventData(eventData[0]);
-      }
-  
-      // Set schedule data
-      setSchedData(schedData);
-      setIsLoading(false)
-    } catch (error) {
-      console.error("An error occurred:", error);
-      alert("Something went wrong while fetching data.");
+
+  const handleGetScheduleByDate = async () => {
+    const {data, error} = await fetchScheduleByDate(selectedDate)
+    if (error) {
+      alert(error.message)
+    } else {
+      handleGetEvent(data.event)
+      setSchedData(data)
+      await handleGetAttendanceBySchedUserId(data)
     }
-  };
+  }
+
+  const handleGetEvent = (data) => {
+    setEventData(data)
+  }
+
+  const handleGetAttendanceBySchedUserId = async (schedule) => {
+    const {data, error} = await fetchAttendanceByUserIdSchedId(user.user._id, schedule._id)
+    if (error) {
+      alert(error)
+    } else {
+      setAttendData(data)
+    }
+    setIsLoading(false);
+  }
   
   useEffect(() => {
-    handleGetSchedule();
+    handleGetScheduleByDate()
   }, []);
   return (
     <Master>
@@ -73,7 +58,7 @@ function AttendanceScreen() {
         </View>
         <View style={{marginTop: 50}}>
           {!isLoading && 
-            <AttendanceSign schedData={schedData} attendData={attendData} user={user} handleGetSchedule={handleGetSchedule}/>
+            <AttendanceSign schedData={schedData} attendData={attendData} user={user} handleGetAttendanceBySchedUserId={handleGetAttendanceBySchedUserId}/>
           }
         </View>
       </View>
@@ -119,11 +104,12 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
   const [isSchedAtive, setIsSchedActive] = useState(false);
     // for face detection or fingerprint scan
     useEffect(() => {
-        (async () => {
-            const compatible = await LocalAuthentication.hasHardwareAsync();
-            setIsBiometricSupported(compatible);
-        })();
-    });
+      handleTimeChecker();
+      (async () => {
+          const compatible = await LocalAuthentication.hasHardwareAsync();
+          setIsBiometricSupported(compatible);
+      })();
+    },[]);
     const fallBacktoDefaultAuth = () => {
         console.log('Fall back to password authentication')
     };
@@ -194,7 +180,7 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
           alert(error)
         } else {
           alert('Attendance Successfull')
-          handleGetSchedule()
+          handleGetAttendanceBySchedUserId(schedData)
         }
       } else {
         const {data, error} = await storeAttendance(formData)
@@ -202,7 +188,7 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
           alert(error)
         } else {
           alert('Attendance Successfull')
-          handleGetSchedule()
+          handleGetAttendanceBySchedUserId(schedData)
         }
       }
     }
@@ -243,10 +229,6 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
         }
       }
     };
-    
-    useEffect(() => {
-      handleTimeChecker();
-    }, []);
 
     return (
         <View>
