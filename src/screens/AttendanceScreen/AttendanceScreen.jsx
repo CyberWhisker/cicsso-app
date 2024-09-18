@@ -27,7 +27,7 @@ function AttendanceScreen() {
     } else {
       handleGetEvent(data.event)
       setSchedData(data)
-      await handleGetAttendanceBySchedUserId(data)
+      await handleGetAttendanceBySchedUserId(data._id)
     }
   }
 
@@ -35,8 +35,8 @@ function AttendanceScreen() {
     setEventData(data)
   }
 
-  const handleGetAttendanceBySchedUserId = async (schedule) => {
-    const {data, error} = await fetchAttendanceByUserIdSchedId(user.user._id, schedule._id)
+  const handleGetAttendanceBySchedUserId = async (scheduleId) => {
+    const {data, error} = await fetchAttendanceByUserIdSchedId(user.user._id, scheduleId)
     if (error) {
       alert(error)
     } else {
@@ -93,12 +93,12 @@ function InfoStack({attendData}) {
   )
 }
 
-function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
+function AttendanceSign({schedData, attendData, user, handleGetAttendanceBySchedUserId}) {
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [formData, setFormData] = useState({
     ...(attendData._id && { _id: attendData._id }), 
-    scheduleId: schedData._id,
-    userId: user.user._id,
+    schedule: schedData._id,
+    user: user.user._id,
     name: user.user.name,
   });
   const [isSchedAtive, setIsSchedActive] = useState(false);
@@ -164,7 +164,7 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
             disableDeviceFallback: true
         });
         if (biometricAuth.success) {
-            TwoButtonAlert()
+            // TwoButtonAlert()
             handleSubmit()
         };
         console.log({isBiometricAvailable})
@@ -180,7 +180,7 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
           alert(error)
         } else {
           alert('Attendance Successfull')
-          handleGetAttendanceBySchedUserId(schedData)
+          await handleGetAttendanceBySchedUserId(schedData._id)
         }
       } else {
         const {data, error} = await storeAttendance(formData)
@@ -188,7 +188,7 @@ function AttendanceSign({schedData, attendData, user, handleGetSchedule}) {
           alert(error)
         } else {
           alert('Attendance Successfull')
-          handleGetAttendanceBySchedUserId(schedData)
+          await handleGetAttendanceBySchedUserId(schedData._id)
         }
       }
     }

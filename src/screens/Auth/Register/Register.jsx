@@ -2,9 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Button, Card, TextInput, Title, Subheading, Menu, Text, useTheme, Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { storeUser } from '../../../api/userApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../../context/AuthContext';
+import { Dropdown } from 'react-native-paper-dropdown';
 
 function Register() {
   const {register} = useContext(AuthContext)
@@ -51,9 +50,23 @@ function Register() {
     }
   };
 
-  const years = ['1st Year', '2nd Year', '3r Year', '4th Year'];
-  const sections = ['A', 'B', 'C', 'D'];
+  const handleNavigateToLogin = () => {
+    navigation.navigate('Login')
+  }
 
+  const YEAR = [
+    { label: '1st Year', value: '1st Year' },
+    { label: '2nd Year', value: '2nd Year' },
+    { label: '3rd Year', value: '3rd Year' },
+    { label: '4th Year', value: '4th Year' },
+  ];
+
+  const SECTION = [
+    { label: 'A', value: 'A' },
+    { label: 'B', value: 'B' },
+    { label: 'C', value: 'C' },
+    { label: 'D', value: 'D' },
+  ];
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView behavior='padding' style={styles.container}>
@@ -86,58 +99,22 @@ function Register() {
             {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
             <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
               <View style={{ width: '45%' }}>
-                <Menu
-                  visible={yearMenuVisible}
-                  onDismiss={() => setYearMenuVisible(false)}
-                  anchor={
-                    <TextInput
-                      label="Year"
-                      value={dataForm.year}
-                      onTouchEnd={() => setYearMenuVisible(true)}
-                      mode="outlined"
-                      editable={false}
-                      error={!!errors.year}
-                    />
-                  }
-                >
-                  {years.map(year => (
-                    <Menu.Item
-                      key={year}
-                      onPress={() => {
-                        handleChange('year', year);
-                        setYearMenuVisible(false);
-                      }}
-                      title={year}
-                    />
-                  ))}
-                </Menu>
+                <Dropdown
+                label="Year"
+                options={YEAR}
+                value={dataForm.year}
+                mode="outlined"
+                onSelect={(value) => handleChange('year', value)}
+                />
               </View>
               <View style={{ width: '45%' }}>
-                <Menu
-                  visible={sectionMenuVisible}
-                  onDismiss={() => setSectionMenuVisible(false)}
-                  anchor={
-                    <TextInput
-                      label="Section"
-                      value={dataForm.section}
-                      onTouchEnd={() => setSectionMenuVisible(true)}
-                      mode="outlined"
-                      editable={false}
-                      error={!!errors.section}
-                    />
-                  }
-                >
-                  {sections.map(section => (
-                    <Menu.Item
-                      key={section}
-                      onPress={() => {
-                        handleChange('section', section);
-                        setSectionMenuVisible(false);
-                      }}
-                      title={section}
-                    />
-                  ))}
-                </Menu>
+                <Dropdown
+                  label="Section"
+                  options={SECTION}
+                  value={dataForm.section}
+                  mode="outlined"
+                  onSelect={(value) => handleChange('section', value)}
+                  />
               </View>
             </View>
             <TextInput
@@ -162,7 +139,7 @@ function Register() {
             {errors.confirm_password && <Text style={styles.errorText}>{errors.confirm_password}</Text>}
           </Card.Content>
           <Card.Content style={styles.actions}>
-            <Text mode="outlined" onPress={() => navigation.navigate('Login')} style={{ color: colors.primary }}>
+            <Text mode="outlined" onPress={() => handleNavigateToLogin()} style={{ color: colors.primary }}>
               I have an account
             </Text>
             <Button mode="contained" onPress={handleSubmit}>
