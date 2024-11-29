@@ -94,11 +94,11 @@ function InfoStack({eventData, attendData}) {
         </Card>
       </View>
       <View style={styles.cardContainer}>
-      <Card style={{ width: '100%', backgroundColor: eventData.event ? '#28a745' : '#ff4d4d' }}>
+      <Card style={{ width: '100%', backgroundColor: eventData?.event ? '#28a745' : '#ff4d4d' }}>
         <Card.Title title='Current Event'/>
         <Card.Content>
           <Text style={styles.customText} adjustsFontSizeToFit>
-            {eventData.event || 'No Event Today'}
+            {eventData?.event || 'No Event Today'}
           </Text>
         </Card.Content>
       </Card>

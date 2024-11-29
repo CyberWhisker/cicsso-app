@@ -9,7 +9,7 @@
       }
     },
     "extra": {
-      "backendApi": "http://10.25.69.40:4000"
+      "backendApi": "http://172.16.129.20:4000"
     }
   }
 }
