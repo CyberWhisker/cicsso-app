@@ -9,7 +9,7 @@ import { Calendar } from 'react-native-calendars'
 import { useNavigation } from '@react-navigation/native'
 
 function HomeScreen() {
-  const {user, logout} = useContext(AuthContext)
+  const { user, logout } = useContext(AuthContext)
   const [eventData, setEventData] = useState([])
   const [schedData, setSchedData] = useState([])
   const [attendData, setAttendData] = useState([])
@@ -17,16 +17,16 @@ function HomeScreen() {
 
   const handleGetEventByDate = async () => {
     const dateNow = moment().startOf('day').toISOString();
-    const {data, error} = await fetchScheduleByDate(dateNow)
+    const { data, error } = await fetchScheduleByDate(dateNow, user.user._id)
     if (error) {
       alert(error.message)
     } else {
-      setEventData(data.event)
+      setEventData(data)
     }
   }
 
   const handleGetSchedules = async () => {
-    const {data, error} = await fetchSchedules()
+    const { data, error } = await fetchSchedules()
     if (error) {
       alert(error.message)
     } else {
@@ -41,21 +41,21 @@ function HomeScreen() {
   useEffect(() => {
     handleGetEventByDate()
     handleGetSchedules();
-  },[])
+  }, [])
   return (
     <Master>
       <View style={styles.container}>
-        <View style={{marginTop: 10}}>
-          <InfoStack eventData={eventData} attendData={attendData}/>
+        <View style={{ marginTop: 10 }}>
+          <InfoStack eventData={eventData} attendData={attendData} />
         </View>
-        <View style={{marginTop: 20}}>
-          <CalendarView schedData={schedData}/>
+        <View style={{ marginTop: 20 }}>
+          <CalendarView schedData={schedData} />
         </View>
-        <View style={{marginTop: 20}}>
-          <ScheduleView activeSched={activeSched}/>
+        <View style={{ marginTop: 20 }}>
+          <ScheduleView activeSched={activeSched} />
         </View>
 
-        <View style={{marginTop: 20}}>
+        <View style={{ marginTop: 20 }}>
           <Button mode="contained" icon="logout" onPress={() => logout()}>Logout</Button>
         </View>
       </View>
@@ -63,7 +63,7 @@ function HomeScreen() {
   )
 }
 
-function InfoStack({eventData, attendData}) {
+function InfoStack({ eventData, attendData }) {
   const [currentTime, setCurrentTime] = useState('')
 
   const handleCurrentTime = () => {
@@ -78,43 +78,47 @@ function InfoStack({eventData, attendData}) {
     return () => clearInterval(intervalId);
   }, [])
   return (
-    <View style={{gap: 15}}>
+    <View style={{ gap: 15 }}>
       <View style={styles.cardContainer}>
         <Card style={styles.card}>
-          <Card.Title title='Current Date'/>
+          <Card.Title title='Current Date' />
           <Card.Content>
             <Text style={styles.customText}>{moment().format('MMM DD YYYY')}</Text>
           </Card.Content>
         </Card>
         <Card style={styles.card}>
-          <Card.Title title='Time'/>
+          <Card.Title title='Time' />
           <Card.Content>
             <Text Text style={styles.customText}>{currentTime}</Text>
           </Card.Content>
         </Card>
       </View>
-      <View style={styles.cardContainer}>
-      <Card style={{ width: '100%', backgroundColor: eventData.event ? '#28a745' : '#ff4d4d' }}>
-        <Card.Title title='Current Event'/>
-        <Card.Content>
-          <Text style={styles.customText} adjustsFontSizeToFit>
-            {eventData.event || 'No Event Today'}
-          </Text>
-        </Card.Content>
-      </Card>
-      </View>
+      {eventData.map((item, index) => {
+        return (
+          <View style={styles.cardContainer} key={index}>
+            <Card style={{ width: '100%', backgroundColor: item?.event ? '#28a745' : '#ff4d4d' }}>
+              <Card.Title title='Current Event' />
+              <Card.Content>
+                <Text style={styles.customText} adjustsFontSizeToFit>
+                  {item?.event.event || 'No Event Today'}
+                </Text>
+              </Card.Content>
+            </Card>
+          </View>
+        )
+      })}
     </View>
   )
 }
 
-function CalendarView({schedData}) {
+function CalendarView({ schedData }) {
   const currentDate = moment().format('YYYY-MM-DD');
   const { colors } = useTheme(); // Use theme colors from React Native Paper
   const navigation = useNavigation();
 
   const handleAttendance = (date) => {
     let selectedData = moment(date).startOf('day').toISOString()
-    navigation.navigate("Attendance", {selectedDate: selectedData})
+    navigation.navigate("Attendance", { selectedDate: selectedData })
   }
 
   // Example highlight dates
@@ -128,7 +132,7 @@ function CalendarView({schedData}) {
 
   return (
     <Card>
-      <View style={{borderRadius: 10, overflow: 'hidden'}}>
+      <View style={{ borderRadius: 10, overflow: 'hidden' }}>
         <Calendar
           current={currentDate}
           minDate={'2023-01-01'}
@@ -151,34 +155,34 @@ function CalendarView({schedData}) {
   );
 }
 
-function ScheduleView ({activeSched}) {
+function ScheduleView({ activeSched }) {
   return (
-    <View style={{gap: 15}}>
+    <View style={{ gap: 15 }}>
       <View style={styles.cardContainer}>
         <Card style={styles.card}>
-          <Card.Title title='AM IN'/>
+          <Card.Title title='AM IN' />
           <Card.Content>
             <Text style={styles.customText}>{activeSched?.amIn ? moment(activeSched.amIn).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
         <Card style={styles.card}>
-          <Card.Title title='AM OUT'/>
+          <Card.Title title='AM OUT' />
           <Card.Content>
-          <Text style={styles.customText}>{activeSched?.amOut ? moment(activeSched.amOut).format('hh:mm A') : 'No Schedule'}</Text>
+            <Text style={styles.customText}>{activeSched?.amOut ? moment(activeSched.amOut).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
       </View>
       <View style={styles.cardContainer}>
         <Card style={styles.card}>
-          <Card.Title title='PM IN'/>
+          <Card.Title title='PM IN' />
           <Card.Content>
-          <Text style={styles.customText}>{activeSched?.pmIn ? moment(activeSched.pmIn).format('hh:mm A') : 'No Schedule'}</Text>
+            <Text style={styles.customText}>{activeSched?.pmIn ? moment(activeSched.pmIn).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
         <Card style={styles.card}>
-          <Card.Title title='PM OUT'/>
+          <Card.Title title='PM OUT' />
           <Card.Content>
-          <Text style={styles.customText}>{activeSched?.pmOut ? moment(activeSched.pmOut).format('hh:mm A') : 'No Schedule'}</Text>
+            <Text style={styles.customText}>{activeSched?.pmOut ? moment(activeSched.pmOut).format('hh:mm A') : 'No Schedule'}</Text>
           </Card.Content>
         </Card>
       </View>
