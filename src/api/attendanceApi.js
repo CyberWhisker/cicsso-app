@@ -1,17 +1,17 @@
 import Constants from 'expo-constants';
 
-export const fetchAttendanceByUserIdSchedId = async (userId,schedId) => {
+export const fetchAttendanceByUserIdSchedId = async (userId, schedId) => {
     const BACKEND_API = Constants.expoConfig?.extra?.backendApi;
     try {
         const response = await fetch(`${BACKEND_API}/api/attendance/getDataByUserIdSchedId/${userId}/${schedId}`)
         const data = await response.json()
         if (response.ok) {
-            return {data: data, error: null}
+            return { data: data, error: null }
         } else {
-            return {data: [], error: data.error}
+            return { data: [], error: data.error }
         }
     } catch (error) {
-        return {data: [], error: error}
+        return { data: [], error: error }
     }
 }
 

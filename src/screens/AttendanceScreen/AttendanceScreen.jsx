@@ -64,7 +64,6 @@ function AttendanceScreen() {
     <Master>
       <View style={styles.container}>
         {arrayEvent.map((item, index) => {
-          console.log(item.attendances[0])
           return (
             <View key={index}>
               <Text variant="displayMedium" style={styles.centerText}>{item?.event?.event || 'No Schedule Today'}</Text>
@@ -117,8 +116,8 @@ function AttendanceSign({ schedData, attendData, user, handleGetScheduleByDate }
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [formData, setFormData] = useState({
     ...(attendData?._id && { _id: attendData?._id }),
-    scheduleId: schedData._id,
-    userId: user.user._id,
+    schedule: schedData._id,
+    user: user.user._id,
     name: user.user.name,
   });
   const [isSchedAtive, setIsSchedActive] = useState(false);
@@ -154,6 +153,7 @@ function AttendanceSign({ schedData, attendData, user, handleGetScheduleByDate }
     ]);
   }
   const handleBiometricAuth = async () => {
+    console.log(formData)
     const isBiometricAvailable = await LocalAuthentication.hasHardwareAsync();
     if (!isBiometricAvailable) {
       return alertComponent(
@@ -182,14 +182,15 @@ function AttendanceSign({ schedData, attendData, user, handleGetScheduleByDate }
       cancelLabel: 'cancel',
       disableDeviceFallback: true
     });
+    // biometricAuth.success
     if (biometricAuth.success) {
-      TwoButtonAlert()
+      // TwoButtonAlert()
       handleSubmit()
     };
-    console.log({ isBiometricAvailable })
-    console.log({ supportedBiometrics })
-    console.log({ savedBiometrics })
-    console.log({ biometricAuth })
+    // console.log({ isBiometricAvailable })
+    // console.log({ supportedBiometrics })
+    // console.log({ savedBiometrics })
+    // console.log({ biometricAuth })
   }
 
   const handleSubmit = async () => {
