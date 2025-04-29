@@ -1,153 +1,241 @@
 import React, { useContext, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import { Button, Card, TextInput, Title, Subheading, Menu, Text, useTheme, Avatar } from 'react-native-paper';
+import { Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Button, Card, TextInput, Title, Subheading, Text, useTheme, Avatar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../../context/AuthContext';
 import { Dropdown } from 'react-native-paper-dropdown';
 
 function Register() {
-  const {register} = useContext(AuthContext)
+  const { register } = useContext(AuthContext);
   const { colors } = useTheme();
-  const [dataForm, setDataForm] = useState({
-    name: '',
-    email: '',
-    year: '',
-    section: '',
-    password: '',
-    confirm_password: '',
-  });
-
-  const [yearMenuVisible, setYearMenuVisible] = useState(false);
-  const [sectionMenuVisible, setSectionMenuVisible] = useState(false);
-  const [errors, setErrors] = useState({});
-  
   const navigation = useNavigation();
 
+  const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    extensionName: '',
+    studentId: '',
+    program: '',
+    type: '',
+    year: '',
+    section: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const [errors, setErrors] = useState({});
+
   const handleChange = (field, value) => {
-    setDataForm(prevState => ({ ...prevState, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const validateForm = () => {
-    const { name, email, year, section, password, confirm_password } = dataForm;
+    const {
+      firstName, lastName, program, email, year,
+      studentId, type, section, password, confirmPassword
+    } = formData;
+
     const newErrors = {};
-    
-    if (!name) newErrors.name = 'Name is required';
-    if (!email) newErrors.email = 'Email is required';
+    if (!email || !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Valid email is required';
+    if (!firstName) newErrors.firstName = 'First Name is required';
+    if (!lastName) newErrors.lastName = 'Last Name is required';
+    if (!program) newErrors.program = 'Program is required';
     if (!year) newErrors.year = 'Year is required';
     if (!section) newErrors.section = 'Section is required';
-    if (!password) newErrors.password = 'Password is required';
-    if (password !== confirm_password) newErrors.confirm_password = 'Passwords do not match';
-
+    if (!studentId) newErrors.studentId = 'Student ID is required';
+    if (!type) newErrors.type = 'Type is required';
+    if (!password || password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     return newErrors;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
-      register(dataForm)
+      register(formData);
     } else {
       setErrors(validationErrors);
     }
   };
 
   const handleNavigateToLogin = () => {
-    navigation.navigate('Login')
-  }
+    navigation.navigate('Login');
+  };
 
-  const YEAR = [
-    { label: '1st Year', value: '1st Year' },
-    { label: '2nd Year', value: '2nd Year' },
-    { label: '3rd Year', value: '3rd Year' },
-    { label: '4th Year', value: '4th Year' },
+  const PROGRAMS = [
+    { label: 'BS Information Technology', value: 'BS Information Technology' },
+    { label: 'BS Information System', value: 'BS Information System' },
   ];
 
-  const SECTION = [
+  const TYPES = [
+    { label: 'Regular', value: 'Regular' },
+    { label: 'Irregular', value: 'Irregular' },
+  ];
+
+  const YEARS = [
+    { label: '1st', value: '1st' },
+    { label: '2nd', value: '2nd' },
+    { label: '3rd', value: '3rd' },
+    { label: '4th', value: '4th' },
+  ];
+
+  const SECTIONS = [
     { label: 'A', value: 'A' },
     { label: 'B', value: 'B' },
     { label: 'C', value: 'C' },
     { label: 'D', value: 'D' },
+    { label: 'E', value: 'E' },
+    { label: 'F', value: 'F' },
   ];
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView behavior='padding' style={styles.container}>
-        <Card style={styles.card}>
-          <Card.Content style={styles.content}>
-            
-            <View style={{alignItems: 'center'}}>
+      <ScrollView>
+
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+          <Card style={styles.card}>
+            <Card.Content style={styles.content}>
+              <View style={{ alignItems: 'center' }}>
                 <Avatar.Image source={require('../../../../assets/images/appImg/Logo.png')} size={100} style={styles.avatar} />
-                <Title style={styles.title}>Sign In</Title>
-                <Subheading style={[styles.subheading, { color: colors.primary, textAlign: 'center' }]}>Please enter your details</Subheading>
-            </View>
-            <TextInput
-              label="Full Name"
-              value={dataForm.name}
-              onChangeText={(text) => handleChange('name', text)}
-              style={styles.textInput}
-              mode="outlined"
-              error={!!errors.name}
-            />
-            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-            <TextInput
-              label="Email"
-              value={dataForm.email}
-              onChangeText={(text) => handleChange('email', text)}
-              style={styles.textInput}
-              mode="outlined"
-              keyboardType="email-address"
-              error={!!errors.email}
-            />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-              <View style={{ width: '45%' }}>
-                <Dropdown
-                label="Year"
-                options={YEAR}
-                value={dataForm.year}
+                <Title style={styles.title}>Register</Title>
+                <Subheading style={[styles.subheading, { color: colors.primary }]}>Please enter your details</Subheading>
+              </View>
+
+              {/* User Information */}
+              <TextInput
+                label="First Name"
+                value={formData.firstName}
+                onChangeText={(text) => handleChange('firstName', text.toUpperCase())}
+                style={styles.textInput}
                 mode="outlined"
-                onSelect={(value) => handleChange('year', value)}
-                />
-              </View>
-              <View style={{ width: '45%' }}>
-                <Dropdown
-                  label="Section"
-                  options={SECTION}
-                  value={dataForm.section}
-                  mode="outlined"
-                  onSelect={(value) => handleChange('section', value)}
+                error={!!errors.firstName}
+              />
+              {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+
+              <TextInput
+                label="Middle Name"
+                value={formData.middleName}
+                onChangeText={(text) => handleChange('middleName', text.toUpperCase())}
+                style={styles.textInput}
+                mode="outlined"
+              />
+
+              <TextInput
+                label="Last Name"
+                value={formData.lastName}
+                onChangeText={(text) => handleChange('lastName', text.toUpperCase())}
+                style={styles.textInput}
+                mode="outlined"
+                error={!!errors.lastName}
+              />
+              {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+
+              <TextInput
+                label="Extension Name (Optional)"
+                value={formData.extensionName}
+                onChangeText={(text) => handleChange('extensionName', text.toUpperCase())}
+                style={styles.textInput}
+                mode="outlined"
+              />
+
+              {/* Student Information */}
+              <TextInput
+                label="Student ID"
+                value={formData.studentId}
+                onChangeText={(text) => handleChange('studentId', text)}
+                style={styles.textInput}
+                mode="outlined"
+                error={!!errors.studentId}
+              />
+              {errors.studentId && <Text style={styles.errorText}>{errors.studentId}</Text>}
+
+              <Dropdown
+                label="Program"
+                options={PROGRAMS}
+                value={formData.program}
+                mode="outlined"
+                onSelect={(value) => handleChange('program', value)}
+              />
+              {errors.program && <Text style={styles.errorText}>{errors.program}</Text>}
+
+              <Dropdown
+                label="Type"
+                options={TYPES}
+                value={formData.type}
+                mode="outlined"
+                onSelect={(value) => handleChange('type', value)}
+              />
+              {errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ width: '48%' }}>
+                  <Dropdown
+                    label="Year"
+                    options={YEARS}
+                    value={formData.year}
+                    mode="outlined"
+                    onSelect={(value) => handleChange('year', value)}
                   />
+                  {errors.year && <Text style={styles.errorText}>{errors.year}</Text>}
+                </View>
+
+                <View style={{ width: '48%' }}>
+                  <Dropdown
+                    label="Section"
+                    options={SECTIONS}
+                    value={formData.section}
+                    mode="outlined"
+                    onSelect={(value) => handleChange('section', value)}
+                  />
+                  {errors.section && <Text style={styles.errorText}>{errors.section}</Text>}
+                </View>
               </View>
-            </View>
-            <TextInput
-              label="Password"
-              value={dataForm.password}
-              onChangeText={(text) => handleChange('password', text)}
-              style={styles.textInput}
-              mode="outlined"
-              secureTextEntry
-              error={!!errors.password}
-            />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-            <TextInput
-              label="Confirm Password"
-              value={dataForm.confirm_password}
-              onChangeText={(text) => handleChange('confirm_password', text)}
-              style={styles.textInput}
-              mode="outlined"
-              secureTextEntry
-              error={!!errors.confirm_password}
-            />
-            {errors.confirm_password && <Text style={styles.errorText}>{errors.confirm_password}</Text>}
-          </Card.Content>
-          <Card.Content style={styles.actions}>
-            <Text mode="outlined" onPress={() => handleNavigateToLogin()} style={{ color: colors.primary }}>
-              I have an account
-            </Text>
-            <Button mode="contained" onPress={handleSubmit}>
-              Register
-            </Button>
-          </Card.Content>
-        </Card>
-      </KeyboardAvoidingView>
+
+              {/* Account Information */}
+              <TextInput
+                label="Email"
+                value={formData.email}
+                onChangeText={(text) => handleChange('email', text)}
+                style={styles.textInput}
+                mode="outlined"
+                keyboardType="email-address"
+                error={!!errors.email}
+              />
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+              <TextInput
+                label="Password"
+                value={formData.password}
+                onChangeText={(text) => handleChange('password', text)}
+                style={styles.textInput}
+                mode="outlined"
+                secureTextEntry
+                error={!!errors.password}
+              />
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+              <TextInput
+                label="Confirm Password"
+                value={formData.confirmPassword}
+                onChangeText={(text) => handleChange('confirmPassword', text)}
+                style={styles.textInput}
+                mode="outlined"
+                secureTextEntry
+                error={!!errors.confirmPassword}
+              />
+              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+
+            </Card.Content>
+
+            <Card.Content style={styles.actions}>
+              <Text onPress={handleNavigateToLogin} style={{ color: colors.primary }}>I already have an account</Text>
+              <Button mode="contained" onPress={handleSubmit}>Register</Button>
+            </Card.Content>
+          </Card>
+        </KeyboardAvoidingView>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
@@ -164,7 +252,7 @@ const styles = StyleSheet.create({
     width: '90%',
     padding: 16,
     borderRadius: 8,
-    elevation: 4, // Adds shadow for better appearance
+    elevation: 4,
   },
   content: {
     paddingHorizontal: 16,
@@ -178,20 +266,19 @@ const styles = StyleSheet.create({
   subheading: {
     fontSize: 16,
     marginBottom: 16,
-    color: '#555', // Subtle text color
   },
   textInput: {
     width: '100%',
     marginBottom: 12,
   },
   actions: {
-    alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
-    flexDirection: 'row', // Align buttons horizontally
+    alignItems: 'center',
   },
   errorText: {
     color: 'red',
-    marginBottom: 12,
+    marginBottom: 8,
   }
 });

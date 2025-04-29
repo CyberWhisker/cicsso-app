@@ -2,14 +2,22 @@
   "expo": {
     "name": "cicsso-app",
     "slug": "cicsso-app",
-    "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
     "ios": {
       "infoPlist": {
         "NSFaceIDUsageDescription": "We need to use Face ID for secure authentication."
       }
     },
     "extra": {
-      "backendApi": "http://172.16.129.20:4000"
-    }
+      "backendApi": "https://cicsso-backend.onrender.com",
+      "eas": {
+        "projectId": "0a64d44f-c923-43bb-9668-7784cc2ecc27"
+      }
+    },
+    "owner": "cicso",
+    "updates": {
+      "url": "https://u.expo.dev/0a64d44f-c923-43bb-9668-7784cc2ecc27"
+    },
+    "android": {}
   }
 }

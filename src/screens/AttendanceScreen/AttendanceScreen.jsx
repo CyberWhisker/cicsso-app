@@ -70,7 +70,7 @@ function AttendanceScreen() {
               <Text variant="headlineMedium" style={styles.dateText}>
                 {moment(selectedDate).format('MMMM DD YYYY')}
               </Text>
-              <InfoStack attendData={item.attendances[0]} />
+              <InfoStack attendData={item.attendances[0]} schedData={item} />
 
               <View style={{ marginTop: 30 }}>
                 {!isLoading &&
@@ -90,23 +90,60 @@ function AttendanceScreen() {
   );
 }
 
-function InfoStack({ attendData }) {
-  const renderCard = (label, time, isPresent) => (
-    <Card style={[styles.card, { backgroundColor: isPresent ? '#28a745' : '#ff4d4d' }]}>
-      <Text>{label}</Text>
-      <Text style={styles.customText}>{time || 'Absent'}</Text>
-    </Card>
-  );
+function InfoStack({ attendData, schedData }) {
+  const renderCard = (label, timeKey, schedTime) => {
+    const attendanceTime = attendData?.[timeKey];
+    const currentTime = moment(); // current time
+    const schedMoment = schedTime ? moment(schedTime) : null;
+    let displayTime = 'Absent';
+    let isPresent = false;
+
+    // If attendance is recorded
+    if (attendanceTime) {
+      displayTime = moment(attendanceTime).format('hh:mm A');
+      isPresent = true;
+    }
+    // If current time is before the schedule time
+    else if (schedMoment && currentTime.isBefore(schedMoment)) {
+      displayTime = 'Upcoming'; // the schedule is in the future
+      isPresent = null; // special state for upcoming
+    }
+    // If the schedule time has passed and no attendance
+    else if (schedMoment && currentTime.isAfter(schedMoment)) {
+      displayTime = 'Absent';
+      isPresent = false;
+    }
+
+    return (
+      <Card
+        style={[
+          styles.card,
+          {
+            backgroundColor: isPresent === true
+              ? '#28a745' // Green for present
+              : isPresent === null
+                ? '#ffc107' // Yellow for upcoming
+                : '#ff4d4d', // Red for absent
+          },
+        ]}
+      >
+        <Card.Content>
+          <Text>{label}</Text>
+          <Text style={styles.customText}>{displayTime}</Text>
+        </Card.Content>
+      </Card>
+    );
+  };
 
   return (
     <View style={{ gap: 15 }}>
       <View style={styles.cardContainer}>
-        {renderCard('AM IN', attendData?.amIn && moment(attendData.amIn).format('hh:mm A'), !!attendData?.amIn)}
-        {renderCard('AM OUT', attendData?.amOut && moment(attendData.amOut).format('hh:mm A'), !!attendData?.amOut)}
+        {renderCard('AM IN', 'amIn', schedData?.amIn)}
+        {renderCard('AM OUT', 'amOut', schedData?.amOut)}
       </View>
       <View style={styles.cardContainer}>
-        {renderCard('PM IN', attendData?.pmIn && moment(attendData.pmIn).format('hh:mm A'), !!attendData?.pmIn)}
-        {renderCard('PM OUT', attendData?.pmOut && moment(attendData.pmOut).format('hh:mm A'), !!attendData?.pmOut)}
+        {renderCard('PM IN', 'pmIn', schedData?.pmIn)}
+        {renderCard('PM OUT', 'pmOut', schedData?.pmOut)}
       </View>
     </View>
   );
@@ -153,45 +190,36 @@ function AttendanceSign({ schedData, attendData, user, handleGetScheduleByDate }
     ]);
   }
   const handleBiometricAuth = async () => {
-    console.log(formData)
     const isBiometricAvailable = await LocalAuthentication.hasHardwareAsync();
     if (!isBiometricAvailable) {
       return alertComponent(
-        'Please Enter Your Password',
-        'Biometric Auth not Supported',
+        'Device Security Required',
+        'Please set up device security (PIN, password, or pattern) to use Attendance.',
         'Ok',
         () => fallBacktoDefaultAuth()
       );
     }
 
-    let supportedBiometrics;
-    if (isBiometricAvailable) {
-      supportedBiometrics = await LocalAuthentication.supportedAuthenticationTypesAsync()
-    }
     const savedBiometrics = await LocalAuthentication.isEnrolledAsync();
     if (!savedBiometrics) {
       return alertComponent(
-        'Biometric record not found',
-        'Please login with password',
+        'Security not setup',
+        'Please setup device security (e.g. passcode) in settings.',
         'Ok',
         () => fallBacktoDefaultAuth()
-      )
+      );
     }
+
     const biometricAuth = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Login with Biometrics',
-      cancelLabel: 'cancel',
-      disableDeviceFallback: true
+      promptMessage: 'Authenticate to mark attendance',
+      cancelLabel: 'Cancel',
+      fallbackLabel: 'Use Device PIN',
     });
-    // biometricAuth.success
+
     if (biometricAuth.success) {
-      // TwoButtonAlert()
-      handleSubmit()
-    };
-    // console.log({ isBiometricAvailable })
-    // console.log({ supportedBiometrics })
-    // console.log({ savedBiometrics })
-    // console.log({ biometricAuth })
-  }
+      handleSubmit();
+    }
+  };
 
   const handleSubmit = async () => {
     if (attendData?._id) {
